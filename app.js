@@ -1,5 +1,10 @@
-CONSUMER_KEY = "64614-1a557559fbd5ba7f0c1f79e5";
-REDIRECT = "http://localhost:8080/"
+//CONSUMER_KEY = "64614-1a557559fbd5ba7f0c1f79e5";
+CONSUMER_KEY = "75963-34c5b8ba7032ceb2e5843089";
+// REDIRECT = "http://localhost:8080/"
+REDIRECT = "http://vps357316.ovh.net:8080/"
+
+//Added
+TOKEN = "c67e2a41-adae-2818-2e0a-143ce1"
 
 const util = require('util');
 const request = require('request');
@@ -45,6 +50,7 @@ function step2(data) {
   console.log('Go to this url in your browser:\n' + url);
 
   // SERVER PART listening for callback from pocket
+  /*
   const http = require('http');
   const server = http.createServer(function(req, res) {
     res.writeHead(200);
@@ -53,6 +59,8 @@ function step2(data) {
     server.close();
   });
   server.listen(8080);
+  */
+  step3(TOKEN)
 }
 
 function step3(token) {
