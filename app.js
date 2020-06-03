@@ -1,10 +1,13 @@
-CONSUMER_KEY = "64614-1a557559fbd5ba7f0c1f79e5";
+CONSUMER_KEY = "91733-d64b6fdc13bbfd1783d1a0ce";
 REDIRECT = "http://localhost:8080/"
+ACCESS_TOKEN="8d2ee43e-ba1a-a235-033c-47f55a"
 
 const util = require('util');
 const request = require('request');
 
 var makeRequest = function(type, url, callback, params) {
+  //
+
   options = {
     url: url,
     method: type,
@@ -16,15 +19,51 @@ var makeRequest = function(type, url, callback, params) {
   }
 
   request(options, function(err, response, body) {
+//  console.log("--> request. type : "+type+" url : "+url+" callback :"+callback.name+" params :"+JSON.stringify(params))
+//  console.log("body: ", body)
+
+
     if (err) {
-      console.log("error: ", err)
+      console.log("headers : "+JSON.parse(headers))
     } else {
       callback(JSON.parse(body));
     }
   });
 }
 
-// init auth here -- see https://getpocket.com/developer/docs/authentication
+
+function countByTags(data,type)
+{
+
+
+  var tagsCount = []
+  for (var k in  data.list) {
+    var tags= ["|"]
+if (data.list[k].tags) {tags=data.list[k].tags}
+     var tgs="|";
+      for (var t in tags )
+      {
+        if (tagsCount[t]) tagsCount[t]++;
+        else tagsCount[t]=1
+
+      }
+
+
+
+    //  console.log("title " + data.list[k].resolved_title + "tags " + tgs);
+  }
+  var nbItems=   Object.keys(data.list).length;
+
+  console.log(type);
+var   pad="........................"
+console.log("Total : "+pad.substring(0,pad.length-8-nbItems.toString().length)+nbItems)
+
+  for (tag in tagsCount) {
+    console.log(tag +pad.substring(0,pad.length-tag.length-tagsCount[tag].toString().length)+ tagsCount[tag]);
+//  console.log(pad.length+" "+tag.length+" "+tagsCount[tag].toString().length+" "+tagsCount[tag].toString())
+   }
+}
+
 
 function step1() {
   console.log('* Step 1:');
@@ -68,7 +107,7 @@ function step4(data) {
   console.log('* Step 4:');
   var access_token = data.access_token;
   var username = data.username;
-  console.log('Retrieved access token for user ' + username);
+  console.log('Retrieved access token for user ' + username +  'access token' +access_token);
 
   console.log('Collecting statistics about your reading habits:\n\n');
   query(access_token);
@@ -76,22 +115,24 @@ function step4(data) {
 
 function query(access_token) {
   makeRequest('GET', 'https://getpocket.com/v3/get', function(data) {
-    // global.resp = data; // for interactive debugging
     var unreadItems = Object.keys(data.list).length;
     var wordCount = [].reduce.call(Object.values(data.list),
           function(acc, val) { return acc + Number(val.word_count || 0) }, 0);
-    console.log('Unread items: ' + unreadItems);
-    console.log('Total word count of unread items: ' + wordCount); // TODO calc reading time based on wpm
-    process.exit(0);
+          countByTags(data,'Unread Items')
+
+  //  console.log('Total word count of unread items: ' + wordCount); // TODO calc reading time based on wpm
+  //  process.exit(0);
   }, {
     'consumer_key': CONSUMER_KEY,
     'access_token': access_token,
-    'state': 'unread',
-    'detailType': 'simple'
+    'state' : 'unread',
+'detailType':'complete'
   });
+
 }
 
 // entry point
-step1();
+//step1();
+query(ACCESS_TOKEN)
 
 // TODO break this up into utils (makeRequest), auth part, and query part
