@@ -29,12 +29,12 @@ var makeRequest = function(type, url, callback, params) {
   }
 
   request(options, function(err, response, body) {
-//  logger.info("--> request. type : "+type+" url : "+url+" callback :"+callback.name+" params :"+JSON.stringify(params))
-//  logger.info("body: ", body)
+//  winston.info("--> request. type : "+type+" url : "+url+" callback :"+callback.name+" params :"+JSON.stringify(params))
+//  winston.info("body: ", body)
 
 
     if (err) {
-      logger.info("headers : "+JSON.parse(headers))
+      winston.info("headers : "+JSON.parse(headers))
     } else {
       callback(JSON.parse(body));
     }
@@ -62,30 +62,30 @@ if (data.list[k].tags) {tags=data.list[k].tags}
 
 
 
-    //  logger.info("title " + data.list[k].resolved_title + "tags " + tgs);
+    //  winston.info("title " + data.list[k].resolved_title + "tags " + tgs);
   }
   var nbItems=   Object.keys(data.list).length;
 
-  logger.info(type);
+  winston.info(type);
 var   pad="........................"
-logger.info("Total : "+pad.substring(0,pad.length-8-nbItems.toString().length)+nbItems)
+winston.info("Total : "+pad.substring(0,pad.length-8-nbItems.toString().length)+nbItems)
 
   for (tag in tagsCount) {
-    logger.info(tag +pad.substring(0,pad.length-tag.length-tagsCount[tag].toString().length)+ tagsCount[tag]);
-//  logger.info(pad.length+" "+tag.length+" "+tagsCount[tag].toString().length+" "+tagsCount[tag].toString())
+    winston.info(tag +pad.substring(0,pad.length-tag.length-tagsCount[tag].toString().length)+ tagsCount[tag]);
+//  winston.info(pad.length+" "+tag.length+" "+tagsCount[tag].toString().length+" "+tagsCount[tag].toString())
    }
    const stats = {
      unreads: nbItems
    }
    var docRef = db.collection('stats').doc('pockets').set(stats).then(() =>
-   logger.info('result  written to database'));
+   winston.info('result  written to database'));
 
 
 }
 
 
 function step1() {
-  logger.info('* Step 1:');
+  winston.info('* Step 1:');
   makeRequest('POST', 'https://getpocket.com/v3/oauth/request', step2, {
     'consumer_key': CONSUMER_KEY,
     'redirect_uri': REDIRECT
@@ -94,13 +94,13 @@ function step1() {
 
 function step2(data) {
   var token = data.code;
-  logger.info('Received code/token: ' + token);
+  winston.info('Received code/token: ' + token);
 
-  logger.info('* Step 2:');
+  winston.info('* Step 2:');
   var url = util.format("https://getpocket.com/auth/authorize?request_token=\
 %s&redirect_uri=%s",
     token, REDIRECT);
-  logger.info('Go to this url in your browser:\n' + url);
+  winston.info('Go to this url in your browser:\n' + url);
 
   // SERVER PART listening for callback from pocket
   const http = require('http');
@@ -114,8 +114,8 @@ function step2(data) {
 }
 
 function step3(token) {
-  logger.info('* Step 3:');
-  logger.info('Received callback from pocket - app is authorized.');
+  winston.info('* Step 3:');
+  winston.info('Received callback from pocket - app is authorized.');
   makeRequest('POST', 'https://getpocket.com/v3/oauth/authorize', step4, {
     'consumer_key': CONSUMER_KEY,
     'code': token
@@ -123,12 +123,12 @@ function step3(token) {
 }
 
 function step4(data) {
-  logger.info('* Step 4:');
+  winston.info('* Step 4:');
   var access_token = data.access_token;
   var username = data.username;
-  logger.info('Retrieved access token for user ' + username +  'access token' +access_token);
+  winston.info('Retrieved access token for user ' + username +  'access token' +access_token);
 
-  logger.info('Collecting statistics about your reading habits:\n\n');
+  winston.info('Collecting statistics about your reading habits:\n\n');
   query(access_token);
 }
 
@@ -139,7 +139,7 @@ function query(access_token, db) {
           function(acc, val) { return acc + Number(val.word_count || 0) }, 0);
 
           countByTags(data,'Unread Items',db)
-logger.info(unreadItems)
+winston.info(unreadItems)
           return unreadItems;
 
   }, {
@@ -154,7 +154,7 @@ logger.info(unreadItems)
 //step1();
 
 
-logger.info('START ---');
+winston.info('START ---');
 
 
 const admin = require('firebase-admin');
@@ -165,7 +165,7 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 var result=query(ACCESS_TOKEN,db )
-logger.info('unreads '+result);
+winston.info('unreads '+result);
 
 
 
@@ -175,25 +175,25 @@ const quoteData = {
 };
  db.collection('sampleData').doc('inspiration')
 .set(quoteData).then(() =>
-logger.info('quote written to database'));
+winston.info('quote written to database'));
 
-logger.info("apres set")
+winston.info("apres set")
 
 
 
 db.collection('users').get()
 .then((snapshot) => {
-  logger.info("dans get")
+  winston.info("dans get")
 
   snapshot.forEach((doc) => {
-    logger.info(doc.id, '=>', doc.data());
+    winston.info(doc.id, '=>', doc.data());
   });
 })
 .catch((err) => {
-  logger.info('Error getting documents', err);
+  winston.info('Error getting documents', err);
 });
 
-logger.info("apres get")
+winston.info("apres get")
 
 
 // TODO break this up into utils (makeRequest), auth part, and query part
