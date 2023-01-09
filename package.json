@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "app-root-path": "^3.0.0",
-    "firebase-admin": "^8.12.1",
+    "firebase-admin": "^11.4.1",
     "request": "^2.81.0",
     "rsyslog": "^1.1.2",
     "winston": "^3.2.1",
